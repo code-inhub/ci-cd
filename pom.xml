@@ -39,7 +39,6 @@
 						<target>Cloudhub-US-East-1</target>
 						<muleVersion>4.9.8</muleVersion>
 						<server>ci-cd-repository</server>
-						<releaseChannel>LTS</releaseChannel>
 						<javaVersion>17</javaVersion>
 						<applicationName>anshul-ci-cd-poc-ch2</applicationName>
 						<replicas>1</replicas>
