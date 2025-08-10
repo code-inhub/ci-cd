@@ -15,7 +15,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<app.runtime>4.9.8</app.runtime>
+		<app.runtime>4.6.19</app.runtime>
 		<mule.maven.plugin.version>4.3.0</mule.maven.plugin.version>
 	</properties>
 
@@ -29,17 +29,18 @@
 			<plugin>
 				<groupId>org.mule.tools.maven</groupId>
 				<artifactId>mule-maven-plugin</artifactId>
-				<version>3.7.1</version>
+				<version>4.5.1</version>
 				<extensions>true</extensions>
 				<configuration>
+					<classifier>mule-application</classifier>
 					<cloudhub2Deployment>
 						<uri>https://anypoint.mulesoft.com</uri>
 						<provider>MC</provider>
 						<environment>DEV</environment>
 						<target>Cloudhub-US-East-1</target>
-						<muleVersion>4.9.8</muleVersion>
+						<muleVersion>4.6.19</muleVersion>
 						<server>ci-cd-repository</server>
-						<javaVersion>17</javaVersion>
+						<businessGroupId>ce235d46-115c-497c-b0e2-474afd80f5e9</businessGroupId>
 						<applicationName>anshul-ci-cd-poc-ch2</applicationName>
 						<replicas>1</replicas>
 						<vCores>0.1</vCores>
@@ -103,6 +104,10 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>mule-public</id>
+			<url>https://repository.mulesoft.org/nexus/content/repositories/releases</url>
 		</pluginRepository>
 	</pluginRepositories>
 
