@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ce235d46-115c-497c-b0e2-474afd80f5e9</groupId>
-	<artifactId>ci-cd-github-actions</artifactId>
+	<artifactId>ci-cd-github-actions-v1</artifactId>
 	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
