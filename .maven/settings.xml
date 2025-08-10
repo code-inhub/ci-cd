@@ -1,0 +1,25 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>anypoint-exchange</id>
+      <username>~~~Client~~~</username>
+      <password>${client.id}~?~${client.secret}</password>
+    </server>
+  </servers>
+  <!-- <profiles>
+    <profile>
+      <id>mule-deployment</id>
+      <properties>
+        <anypoint.connectedApp.clientId>YOUR_CLIENT_ID</anypoint.connectedApp.clientId>
+        <anypoint.connectedApp.clientSecret>YOUR_CLIENT_SECRET</anypoint.connectedApp.clientSecret>
+        <anypoint.environment>YOUR_ENVIRONMENT</anypoint.environment>
+        <anypoint.businessGroup>YOUR_BUSINESS_GROUP</anypoint.businessGroup>
+      </properties>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>mule-deployment</activeProfile>
+  </activeProfiles> -->
+</settings>
