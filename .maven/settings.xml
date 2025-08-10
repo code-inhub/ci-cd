@@ -3,7 +3,7 @@
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
     <server>
-      <id>anypoint-exchange</id>
+      <id>ci-cd-repository</id>
       <username>~~~Client~~~</username>
       <password>${client.id}~?~${client.secret}</password>
     </server>
