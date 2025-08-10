@@ -139,6 +139,3 @@ jobs:
             -Dclient.id="${{ secrets.CONNECTED_APP_CLIENT_ID }}" \
             -Dclient.secret="${{ secrets.CONNECTED_APP_CLIENT_SECRET }}" \
             -DapplicationName="$APP_NAME"
-```
-
-Do you want me to also include **automatic rollback on failed deploys** for prod in this template?
