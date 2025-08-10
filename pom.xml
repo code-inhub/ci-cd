@@ -6,7 +6,7 @@
 
 	<groupId>ce235d46-115c-497c-b0e2-474afd80f5e9</groupId>
 	<artifactId>ci-cd-github-actions-v2-QA</artifactId>
-	<version>1.0.4</version>
+	<version>1.0.5</version>
 	<packaging>mule-application</packaging>
 
 	<name>ci-cd-github-actions</name>
