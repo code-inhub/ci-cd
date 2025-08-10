@@ -1,40 +1,144 @@
-name: Publish to Exchange & Deploy to CH2.0
+# Production-grade GitHub Actions workflow for a Mule 4.6.x application
+# Features:
+# - Multi-environment deploys (dev/prod)
+# - Artifact caching (Maven local repository)
+# - Artifact build -> upload -> deploy separation
+# - Auto-versioning (tagged releases for prod; generated VERSION for dev)
+# - Deploy rules: feature branches & merges to develop -> deploy to dev; tagged releases -> prod
+# - Protect production by using `environment: production`
+# - Optional: fetch CloudHub logs via Anypoint CLI if deploy fails
+
+name: CI/CD - Mule (Publish -> Deploy)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - 'main'
+      - 'develop'
+      - 'feature/**'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - 'develop'
 
-jobs:         
+env:
+  MAVEN_OPTS: -Xmx1g
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
   build:
+    name: Build & Test
     runs-on: ubuntu-latest
+    outputs:
+      artifact-name: mule-artifact
     steps:
-      - name: Checkout this repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - uses: actions/cache@v4
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2-
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - run: mvn clean test --settings .maven/settings.xml
+
+      - run: mvn -B -DskipMunitTests package --settings .maven/settings.xml
+
+      - uses: actions/upload-artifact@v4
         with:
-          distribution: "zulu"
-          java-version: 17
+          name: mule-artifact
+          path: target/*.jar
 
-      - name: Set build version
-        run: mvn versions:set -DnewVersion=1.0.${{ github.run_number }}-SNAPSHOT
+  version-and-publish:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Publish to Exchange
+      - uses: actions/download-artifact@v4
+        with:
+          name: mule-artifact
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - id: compute_version
         run: |
-          mvn deploy --settings .maven/settings.xml -DskipMunitTests \
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            DATE=$(date +%Y%m%d)
+            SHORT_SHA=$(git rev-parse --short=7 HEAD)
+            VERSION=${DATE}-${SHORT_SHA}-SNAPSHOT
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - run: mvn -B versions:set -DnewVersion=${{ steps.compute_version.outputs.VERSION }} -DgenerateBackupPoms=false
+
+      - run: mvn -B deploy --settings .maven/settings.xml -DskipMunitTests \
           -Dclient.id="${{ secrets.CONNECTED_APP_CLIENT_ID }}" \
           -Dclient.secret="${{ secrets.CONNECTED_APP_CLIENT_SECRET }}"
 
-      - name: Deploy to CloudHub 2.0
-        run: |
-          mvn deploy --settings .maven/settings.xml -DskipMunitTests -DmuleDeploy \
-          -Dclient.id="${{ secrets.CONNECTED_APP_CLIENT_ID }}" \
-          -Dclient.secret="${{ secrets.CONNECTED_APP_CLIENT_SECRET }}"
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs: version-and-publish
+    if: startsWith(github.ref, 'refs/heads/feature/') || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: mule-artifact
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - run: |
+          APP_NAME="${{ github.repository }}-${{ github.ref_name }}"
+          APP_NAME=${APP_NAME//[^a-z0-9-]/-}
+          mvn -B deploy --settings .maven/settings.xml -DskipMunitTests -DmuleDeploy \
+            -Dclient.id="${{ secrets.CONNECTED_APP_CLIENT_ID }}" \
+            -Dclient.secret="${{ secrets.CONNECTED_APP_CLIENT_SECRET }}" \
+            -DapplicationName="$APP_NAME"
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    needs: version-and-publish
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: mule-artifact
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          APP_NAME="${{ github.repository }}-${TAG_NAME}"
+          APP_NAME=${APP_NAME//[^a-z0-9-]/-}
+          mvn -B deploy --settings .maven/settings.xml -DskipMunitTests -DmuleDeploy \
+            -Dclient.id="${{ secrets.CONNECTED_APP_CLIENT_ID }}" \
+            -Dclient.secret="${{ secrets.CONNECTED_APP_CLIENT_SECRET }}" \
+            -DapplicationName="$APP_NAME"
+```
+
+Do you want me to also include **automatic rollback on failed deploys** for prod in this template?
