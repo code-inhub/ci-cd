@@ -84,9 +84,9 @@ jobs:
           fi
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
-      - run: mvn -B versions:set -DnewVersion=${{ steps.compute_version.outputs.VERSION }} -DgenerateBackupPoms=false
+      - run: mvn versions:set -DnewVersion=${{ steps.compute_version.outputs.VERSION }} -DgenerateBackupPoms=false
 
-      - run: mvn -B deploy --settings .maven/settings.xml -DskipMunitTests \
+      - run: mvn deploy --settings .maven/settings.xml -DskipMunitTests \
           -Dclient.id="${{ secrets.CONNECTED_APP_CLIENT_ID }}" \
           -Dclient.secret="${{ secrets.CONNECTED_APP_CLIENT_SECRET }}"
 
@@ -109,7 +109,7 @@ jobs:
       - run: |
           APP_NAME="${{ github.repository }}-${{ github.ref_name }}"
           APP_NAME=${APP_NAME//[^a-z0-9-]/-}
-          mvn -B deploy --settings .maven/settings.xml -DskipMunitTests -DmuleDeploy \
+          mvn deploy --settings .maven/settings.xml -DskipMunitTests -DmuleDeploy \
             -Dclient.id="${{ secrets.CONNECTED_APP_CLIENT_ID }}" \
             -Dclient.secret="${{ secrets.CONNECTED_APP_CLIENT_SECRET }}" \
             -DapplicationName="$APP_NAME"
@@ -135,7 +135,7 @@ jobs:
           TAG_NAME=${GITHUB_REF#refs/tags/}
           APP_NAME="${{ github.repository }}-${TAG_NAME}"
           APP_NAME=${APP_NAME//[^a-z0-9-]/-}
-          mvn -B deploy --settings .maven/settings.xml -DskipMunitTests -DmuleDeploy \
+          mvn deploy --settings .maven/settings.xml -DskipMunitTests -DmuleDeploy \
             -Dclient.id="${{ secrets.CONNECTED_APP_CLIENT_ID }}" \
             -Dclient.secret="${{ secrets.CONNECTED_APP_CLIENT_SECRET }}" \
             -DapplicationName="$APP_NAME"
