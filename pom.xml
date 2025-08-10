@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ce235d46-115c-497c-b0e2-474afd80f5e9</groupId>
-	<artifactId>ci-cd-github-actions-v2-dev</artifactId>
+	<artifactId>ci-cd-github-actions-dev</artifactId>
 	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
@@ -42,7 +42,7 @@
 						<server>ci-cd-repository</server>
 						<javaVersion>17</javaVersion>
 						<businessGroupId>ce235d46-115c-497c-b0e2-474afd80f5e9</businessGroupId>
-						<applicationName>anshul-ci-cd-poc-ch2.0-dev</applicationName>
+						<applicationName>ci-cd-github-actions</applicationName>
 						<replicas>1</replicas>
 						<vCores>0.1</vCores>
 					</cloudhub2Deployment>
